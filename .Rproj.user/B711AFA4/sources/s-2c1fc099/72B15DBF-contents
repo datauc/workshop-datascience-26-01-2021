@@ -1,0 +1,104 @@
+library(dplyr)
+
+
+casen <- readstata13::read.dta13("~/Casen/Casen 2017.dta") %>% as_tibble()
+
+glimpse(casen)
+
+casen_rm <- casen %>%
+  filter(region == "Región Metropolitana de Santiago")
+
+casen_rm <- casen_rm %>% tidyr::uncount(weights = expc)
+
+
+casen_rm %>% select(1:20) %>% tidyr::uncount(weights = expc)
+
+
+casen_1 <- casen_rm %>% 
+  select(comuna,
+         expc,                    #factor de expansión comunal
+         sexo,                    #género
+         esc,                     #años de escolaridad
+         edad,                    #edad
+         ytotcorh,                #Ingreso total del hogar corregido
+         ytotcor,                 #Ingreso total corregido
+         yoprcor,                 #Ingreso ocupación principal
+         ypc,                     #Ingreso total per cápita del hogar corregido
+         ytrabajocor,             #ingreso del trabajo
+         ytrabajocorh,            #ingreso del trabajo del hogar
+         ypchautcor,              #ingreso autónomo per cápita 
+         y26_2c,                  #jubilación o pensión
+         numper,                  #numero de personas en el hogar
+         s4,                      #hijos vivos
+         pco1,                    #jefe de hogar
+         activ,                   #actividad
+         hacinamiento,            #hacinamiento
+         pobreza,                 #pobreza
+         pobreza_multi_5d,        #pobreza multidimensional
+         r1a,                     #nacionalidad
+         r3,                      #pertenencia a pueblos originarios
+         v12,                     #metros cuadrados de la casa
+         indmat)                  #índice de materialidad de la vivienda
+         
+
+casen_2 <- tidyr::uncount(casen_1, weights = expc)
+
+glimpse(casen_1)
+glimpse(casen_2)
+
+casen_promedios <- casen_2 %>%
+  group_by(comuna) %>%
+  summarize(across(3:13, ~ mean(.x, na.rm = TRUE))) %>%
+  mutate(tipo = "promedio")
+
+casen_medianas <- casen_2 %>%
+  group_by(comuna) %>%
+  summarize(across(3:13, ~ median(.x, na.rm = TRUE))) %>%
+  mutate(tipo = "mediana")
+
+casen_datos <- bind_rows(casen_promedios, casen_medianas) %>%
+  arrange(comuna, tipo)
+
+casen_datos
+
+save(casen_datos, file = "casen_datos.rds")
+
+#—----
+
+casen_3 %>%
+  glimpse()
+
+
+library(ggplot2)
+
+casen_1 %>%
+  mutate(v12 = na_if(v12, "No sabe/no responde"),
+         v12 = as.numeric(v12)) %>%
+  group_by(comuna) %>%
+  summarize(esc = mean(esc, na.rm = TRUE),
+            ytotcor = mean(ytotcor, na.rm = TRUE),
+            v12 = mean(v12, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_point(aes(x = esc, y = ytotcor,
+                 size = v12, 
+                 fill=comuna, col=comuna)) +
+  theme(legend.position = "none")
+
+casen_1 %>%
+  mutate(v12 = na_if(v12, "No sabe/no responde"),
+         v12 = as.numeric(v12)) %>%
+  group_by(comuna, sexo) %>%
+  summarize(esc = mean(esc, na.rm = TRUE),
+            ytotcor = mean(ytotcor, na.rm = TRUE),
+            v12 = mean(v12, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_point(aes(x = esc, y = ytotcor,
+                 size = v12, 
+                 fill=comuna, col=comuna)) +
+  theme(legend.position = "none") +
+  facet_wrap(~sexo)
+
+#grafico de pelotas
+#eje y ingreso mediano
+#eje x covid?
+#tamaño metros cuadrados?

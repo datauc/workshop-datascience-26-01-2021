@@ -1,0 +1,26 @@
+{
+    "id": "A6070D3C",
+    "path": "~/Workshops/workshop-datascience-26-01-2021/grafico_dispersion_casen.r",
+    "project_path": "grafico_dispersion_casen.r",
+    "type": "r_source",
+    "hash": "4117234971",
+    "contents": "",
+    "dirty": false,
+    "created": 1611438467795.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "tempName": "Untitled1",
+        "cursorPosition": "86,0",
+        "scrollLine": "62",
+        "docOutlineVisible": "1"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1611506201,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1611506201313,
+    "read_only": false,
+    "read_only_alternatives": []
+}

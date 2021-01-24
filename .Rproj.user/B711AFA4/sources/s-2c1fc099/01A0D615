@@ -1,0 +1,25 @@
+{
+    "id": "01A0D615",
+    "path": "~/Workshops/workshop-datascience-26-01-2021/grafico_densidad_casen.r",
+    "project_path": "grafico_densidad_casen.r",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1611506310873.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "tempName": "Untitled2",
+        "cursorPosition": "21,27",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1611506926,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1611506926416,
+    "read_only": false,
+    "read_only_alternatives": []
+}

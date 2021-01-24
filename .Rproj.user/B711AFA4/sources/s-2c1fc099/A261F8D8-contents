@@ -1,0 +1,163 @@
+livecode <- livecode::serve_file(port = 16115)
+livecode$send_msg("Hello World!", type = "success")
+  
+library(dplyr)
+library(tidyr)
+library(survey)
+
+#importar datos
+casen <- readstata13::read.dta13("~/Casen/Casen 2017.dta") %>% as_tibble()
+
+
+#filtrar región metropolitana
+casen_rm <- casen %>%
+  filter(region == "Región Metropolitana de Santiago")
+
+
+#prueba survey ----
+survey <- svydesign(data = casen_rm,
+                    ids = ~varunit, 
+                    strata = ~varstrat,
+                    weights = ~expr)
+
+options(survey.lonely.psu = "certainty" )
+
+resultado_survey <- svyby(~ytotcorh, ~region, survey, svymean)
+
+
+#prueba sin expansión ----
+resultado_sin <- casen_rm %>%
+  select(ytotcorh, region) %>%
+  group_by(region) %>%
+  summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#prueba con expansión ----
+resultado_con <- casen_rm %>%
+  select(ytotcorh, region, expr) %>%
+  tidyr::uncount(weights = expr) %>%
+  group_by(region) %>%
+  summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#comparar
+resultado_survey
+resultado_sin
+resultado_con
+
+#—----
+
+#HACINAMIENTO ----
+#prueba survey ----
+survey <- svydesign(data = casen_rm,
+                    ids = ~varunit, 
+                    strata = ~varstrat,
+                    weights = ~expr)
+
+options(survey.lonely.psu = "certainty" )
+
+resultado_survey_b <- svyby(~hacinamiento, ~region, survey, svytotal)
+
+resultado_survey_c <- svyby(~hacinamiento, ~region, survey, svymean)
+
+
+#prueba sin expansión ----
+resultado_sin_b <- casen_rm %>%
+  #select(ytotcorh, region) %>%
+  group_by(region) %>%
+  count(hacinamiento)
+  #summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+resultado_sin_c <- casen_rm %>%
+  #select(ytotcorh, region) %>%
+  group_by(region) %>%
+  count(hacinamiento) %>%
+  mutate(porcentaje = n/sum(n))
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#prueba con expansión ----
+resultado_con_b <- casen_rm %>%
+  select(ytotcorh, hacinamiento, region, expc) %>%
+  tidyr::uncount(weights = expc) %>%
+  group_by(region) %>%
+  count(hacinamiento)
+  #summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+resultado_con_c <- casen_rm %>%
+  select(ytotcorh, hacinamiento, region, expr) %>%
+  tidyr::uncount(weights = expr) %>%
+  group_by(region) %>%
+  count(hacinamiento) %>%
+  mutate(porcentaje = n/sum(n))
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#comparar
+resultado_survey_b %>% as_tibble() %>% pivot_longer(cols = 2:11)
+resultado_sin_b
+resultado_con_b
+
+resultado_survey_c %>% as_tibble() %>% pivot_longer(cols = 2:11)
+resultado_sin_c
+resultado_con_c
+
+
+
+#—----
+#POBREZA ----
+
+#prueba survey ----
+survey <- svydesign(data = casen_rm %>% mutate(pobreza = as.character(pobreza)) %>% filter(!is.na(pobreza)),
+                    ids = ~varunit, 
+                    strata = ~varstrat,
+                    weights = ~expr)
+
+options(survey.lonely.psu = "certainty")
+
+resultado_survey_d <- svyby(~as.character(pobreza), ~region, survey, svytotal)
+
+resultado_survey_e <- svyby(~pobreza, ~region, survey, svymean)
+
+
+#prueba sin expansión ----
+resultado_sin_d <- casen_rm %>%
+  #select(ytotcorh, region) %>%
+  group_by(region) %>%
+  count(pobreza)
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+resultado_sin_e <- casen_rm %>%
+  #select(ytotcorh, region) %>%
+  group_by(region) %>%
+  count(pobreza) %>%
+  mutate(porcentaje = n/sum(n))
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#prueba con expansión ----
+resultado_con_d <- casen_rm %>%
+  select(ytotcorh, pobreza, region, expc) %>%
+  tidyr::uncount(weights = expc) %>%
+  group_by(region) %>%
+  count(pobreza)
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+resultado_con_e <- casen_rm %>%
+  select(ytotcorh, pobreza, region, expr) %>%
+  tidyr::uncount(weights = expr) %>%
+  group_by(region) %>%
+  count(pobreza) %>%
+  mutate(porcentaje = n/sum(n))
+#summarize(ytotcorh = mean(ytotcorh, na.rm = T))
+
+
+#comparar
+
+resultado_survey_e %>% as_tibble() %>% pivot_longer(cols = 2:7)
+resultado_sin_e
+resultado_con_e
+
+resultado_survey_d %>% as_tibble() %>% pivot_longer(cols = 2:7)
+resultado_sin_d
+resultado_con_d
