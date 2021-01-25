@@ -1,5 +1,9 @@
 #server <- livecode::serve_file(port = 11111)
 
+#instalar paquetes si es necesario
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("readstata13")
 
 #cargar paquetes
 library(dplyr)
@@ -13,34 +17,26 @@ casen <- readstata13::read.dta13("~/Casen/Casen 2017.dta")
 #mirar la base  ----
 casen
 names(casen)
-
-#mirar la base
-casen_rm1
-tibble(casen_rm1)
-
-str(casen_rm1)
-summary(casen_rm1)
-glimpse(casen_rm1)
-names(casen_rm1)
+tibble(casen)
+glimpse(casen)
 
 
-#se ve desordenado... 
 #convertir a tibble ----
 casen <- as_tibble(casen)
 
 
-#contar ----
+#contar casos de una variable----
 casen %>%
   count(pobreza)
 
-#filtrar ----
+#filtrar por regiones ----
 casen %>%
   count(region)
 
 casen %>% 
   filter(region != "Región de La Araucanía")
 
-#filtrar condiciones
+#filtrar por otras condiciones ----
 casen %>%
   count(pco1)
 
@@ -49,11 +45,12 @@ casen %>%
          sexo == "Mujer")
 
 
-
+#factor de expansión ----
 #necesitamos aplicar factor de expansión...
 
-#filtrar la región metropolitana
 nrow(casen)
+
+#filtrar la región metropolitana
 
 casen_rm <- casen %>%
   filter(region == "Región Metropolitana de Santiago")
@@ -62,7 +59,7 @@ casen_rm
 
 nrow(casen_rm)
 
-#seleccionar ----
+#seleccionar variables de interés
 casen_rm
 
 casen_rm %>%
@@ -102,24 +99,38 @@ casen_rm1 <- casen_rm %>%
 #aplicar factor de expansión comunal (expc)
 casen_rm2 <- tidyr::uncount(casen_rm1, weights = expc)
 
-#contar
+#comparar conteos
+casen_rm %>%
+  filter(pco1 == "Jefe(a) de hogar") %>%
+  count(sexo)
+
 casen_rm2 %>%
   filter(pco1 == "Jefe(a) de hogar") %>%
   count(sexo)
 
+#resumir valores ----
 
-#resumir valores
-  #ingresos 
+#resumir valores: ingresos 
+casen_rm %>%
+  summarize(mean(ytrabajocorh, na.rm=T))
+
 casen_rm2 %>%
-  summarize(mean(ytrabajocorh))
+  summarize(mean(ytrabajocorh, na.rm=T))
 
-  #pensiones
+#resumir valores: ingresos 
 casen_rm2 %>%
   summarize(mean(y26_2c, na.rm=T))
 
+#agrupar operaciones ----
+casen_rm2 %>%
+  group_by(sexo) %>%
+  summarize(mean(ytrabajocorh, na.rm=T))
 
+casen_rm2 %>%
+  group_by(comuna) %>%
+  summarize(mean(ytrabajocorh, na.rm=T))
 
-#crear nuevas variables
+#crear nuevas variables ----
 casen_rm2 %>%
   filter(pco1 == "Jefe(a) de hogar") %>%
   count(sexo, name = "cantidad") %>%

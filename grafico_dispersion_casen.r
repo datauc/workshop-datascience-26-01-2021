@@ -1,12 +1,13 @@
-#server <- livecode::serve_file(port = 11112)
+#PARTE 2: gráfico de dispersión
 
+#cambiemos el nombre al objeto
 casen <- casen_rm2
 
 glimpse(casen)
 
 names(casen)
 
-#calcular resumen de datos ----
+#calcular resumen de varias variables ----
 casen_p <- casen %>%
   group_by(comuna) %>%
   summarize(across(3:13, ~ mean(.x, na.rm = TRUE)))
@@ -56,7 +57,7 @@ casen_p %>%
 options(scipen=9999)
 
 
-#covid ----
+#añadir datos de covid ----
 #descargar los datos de covid: https://github.com/datauc/api-covid19-datauc
 covid <- readr::read_csv("https://coronavirus-api.mat.uc.cl/casos_totales_comuna_enriquecido")
 

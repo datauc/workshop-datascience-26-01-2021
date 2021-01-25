@@ -1,3 +1,5 @@
+#PARTE 3: gráfico de densidad
+
 #filtrar datos, si se desea
 casen_rm3 <- casen_rm2
 
