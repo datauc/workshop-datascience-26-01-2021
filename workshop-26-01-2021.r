@@ -230,7 +230,7 @@ casen_p %>%
 #añadir datos de covid ----
 #descargar los datos de covid: https://github.com/datauc/api-covid19-datauc
 
-covid <- readr::read_csv("http://localhost:8080/casos_totales_comuna_enriquecido")
+covid <- readr::read_csv("https://coronavirus-api.mat.uc.cl/casos_totales_comuna_enriquecido")
 
 covid %>%
   filter(region == "Metropolitana de Santiago") %>%
